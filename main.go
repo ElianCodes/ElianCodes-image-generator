@@ -14,16 +14,19 @@ import (
 	"github.com/nfnt/resize"
 )
 
-func main() {
-	generateImage("test")
+type size struct {
+	width  int
+	height int
 }
 
-func generateImage(imageName string) {
-	width := 2024
-	height := 1012
+func main() {
+	var defaultSocialSize size = size{width: 2024, height: 1012}
+	generateImage("test", defaultSocialSize)
+}
 
+func generateImage(imageName string, size size) {
 	// initialize a new image
-	img := image.NewRGBA(image.Rect(0, 0, width, height))
+	img := image.NewRGBA(image.Rect(0, 0, size.width, size.height))
 
 	// Colors are defined by Red, Green, Blue, Alpha uint8 values.
 	availableColors := [5]color.Color{
@@ -37,8 +40,8 @@ func generateImage(imageName string) {
 	usedColor := availableColors[rand.Intn(len(availableColors))]
 
 	// Draw the background
-	draw.Draw(img, image.Rect(width/2, 0, width, height), &image.Uniform{usedColor}, image.Point{}, draw.Src)
-	draw.Draw(img, image.Rect(0, 0, width/2, height), &image.Uniform{color.White}, image.Point{}, draw.Src)
+	draw.Draw(img, image.Rect(size.width/2, 0, size.width, size.height), &image.Uniform{usedColor}, image.Point{}, draw.Src)
+	draw.Draw(img, image.Rect(0, 0, size.width/2, size.height), &image.Uniform{color.White}, image.Point{}, draw.Src)
 
 	// Set the ElianCodes image in place
 	readHeroImg, err := os.Open("./assets/hero.png")
@@ -49,7 +52,7 @@ func generateImage(imageName string) {
 	heroImg, err := png.Decode(readHeroImg)
 	heroImg = resize.Resize(600, 0, heroImg, resize.Lanczos3)
 
-	rightMiddlePart := image.Pt((width/2*-1)-200, -200)
+	rightMiddlePart := image.Pt((size.width/2*-1)-200, -200)
 	draw.Draw(img, img.Bounds(), heroImg, rightMiddlePart, draw.Over)
 
 	// Set the text
