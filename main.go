@@ -1,39 +1,73 @@
 package main
 
 import (
-	"encoding/json"
-	"log"
-	"net/http"
+	"fmt"
+	"image"
+	"image/color"
+	"image/draw"
+	"image/png"
+	"io/ioutil"
+	"math/rand"
+	"os"
 
-	"github.com/gorilla/mux"
+	"github.com/golang/freetype"
+	"github.com/nfnt/resize"
 )
 
-type Project struct {
-	id    string `json:"id"`
-	title string `json:"title"`
-	link  string `json:link`
-}
-
 func main() {
-	// Let's build a basic router
-	router := mux.NewRouter()
-
-	// Build the routes
-	router.HandleFunc("/api", sendHello).Methods("GET")
-	router.HandleFunc("/api/health", checkHealth).Methods("GET")
-
-	// Let's listen to the port for an endpoint
-	log.Fatal(http.ListenAndServe(":8000", router))
+	generateImage("test")
 }
 
-func sendHello(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode("Hello World")
-}
+func generateImage(imageName string) {
+	width := 2024
+	height := 1012
 
-func checkHealth(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode("Health seems fine")
+	// initialize a new image
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+
+	// Colors are defined by Red, Green, Blue, Alpha uint8 values.
+	availableColors := [5]color.Color{
+		color.RGBA{253, 186, 116, 0xff}, // ElianCodes Orange
+		color.RGBA{134, 239, 172, 0xff}, // ElianCodes Green
+		color.RGBA{147, 197, 253, 0xff}, // ElianCodes Blue
+		color.RGBA{252, 165, 165, 0xff}, // ElianCodes Red
+		color.RGBA{240, 171, 252, 0xff}, // ElianCodes Purple
+	}
+
+	usedColor := availableColors[rand.Intn(len(availableColors))]
+
+	// Draw the background
+	draw.Draw(img, image.Rect(width/2, 0, width, height), &image.Uniform{usedColor}, image.Point{}, draw.Src)
+	draw.Draw(img, image.Rect(0, 0, width/2, height), &image.Uniform{color.White}, image.Point{}, draw.Src)
+
+	// Set the ElianCodes image in place
+	readHeroImg, err := os.Open("./assets/hero.png")
+	if err != nil {
+		fmt.Errorf(err.Error())
+	}
+	defer readHeroImg.Close()
+	heroImg, err := png.Decode(readHeroImg)
+	heroImg = resize.Resize(600, 0, heroImg, resize.Lanczos3)
+
+	rightMiddlePart := image.Pt((width/2*-1)-200, -200)
+	draw.Draw(img, img.Bounds(), heroImg, rightMiddlePart, draw.Over)
+
+	// Set the text
+	ctx := freetype.NewContext()
+	ctx.SetDPI(300)
+	ctx.SetFontSize(42)
+	ctx.SetClip(img.Bounds())
+	fontBytes, err := ioutil.ReadFile("./fonts/Rubik/static/Rubik-Regular.ttf")
+	if err != nil {
+		fmt.Errorf(err.Error())
+	}
+	font, err := freetype.ParseFont(fontBytes)
+	ctx.SetFont(font)
+	ctx.SetDst(img)
+	ctx.SetSrc(image.NewUniform(usedColor))
+	ctx.DrawString("Elian Codes", freetype.Pt(0, 0+int(ctx.PointToFixed(42)>>6)))
+
+	// Encode as PNG.
+	f, _ := os.Create(imageName + ".png")
+	png.Encode(f, img)
 }
