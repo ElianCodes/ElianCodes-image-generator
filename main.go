@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
+	"time"
 
 	"github.com/golang/freetype"
 	"github.com/nfnt/resize"
@@ -17,6 +18,11 @@ import (
 type size struct {
 	width  int
 	height int
+}
+
+type randomColor struct {
+	name  string
+	color color.RGBA
 }
 
 type socialImage struct {
@@ -31,17 +37,18 @@ func main() {
 	generateImage("test", defaultSocialImageSize)
 }
 
-func getRandomColor() color.Color {
-	// Colors are defined by Red, Green, Blue, Alpha uint8 values.
-	availableColors := [5]color.Color{
-		color.RGBA{253, 186, 116, 0xff}, // ElianCodes Orange
-		color.RGBA{134, 239, 172, 0xff}, // ElianCodes Green
-		color.RGBA{147, 197, 253, 0xff}, // ElianCodes Blue
-		color.RGBA{252, 165, 165, 0xff}, // ElianCodes Red
-		color.RGBA{240, 171, 252, 0xff}, // ElianCodes Purple
+func getRandomColor() randomColor {
+	availableColors := [5]randomColor{
+		{name: "Orange", color: color.RGBA{253, 186, 116, 0xff}},
+		{name: "Green", color: color.RGBA{134, 239, 172, 0xff}},
+		{name: "Blue", color: color.RGBA{147, 197, 253, 0xff}},
+		{name: "Red", color: color.RGBA{252, 165, 165, 0xff}},
+		{name: "Purple", color: color.RGBA{240, 171, 252, 0xff}},
 	}
-	fmt.Println("The color is picked!")
-	return availableColors[rand.Intn(len(availableColors))]
+	rand.Seed(time.Now().UnixNano())
+	var pickedColor randomColor = availableColors[rand.Intn(len(availableColors))]
+	fmt.Println("The color is picked, it is " + pickedColor.name + "!")
+	return pickedColor
 }
 
 func generateImage(imageName string, size size) {
@@ -50,7 +57,7 @@ func generateImage(imageName string, size size) {
 	// initialize a new (empty) image
 	img := image.NewRGBA(image.Rect(0, 0, size.width, size.height))
 
-	usedColor := getRandomColor()
+	usedColor := getRandomColor().color
 	uniformColor := image.NewUniform(usedColor)
 
 	var socialImg socialImage = socialImage{size: size, name: imageName, baseColor: usedColor, src: img}
