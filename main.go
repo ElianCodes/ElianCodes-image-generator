@@ -79,21 +79,31 @@ func generateImage(imageName string, size size) {
 	draw.Draw(img, img.Bounds(), heroImg, rightMiddlePart, draw.Over)
 
 	// Set the text
+	addText(img, uniformColor)
+
+	writeImage(socialImg)
+}
+
+func addText(img draw.Image, usedColor *image.Uniform) {
 	ctx := freetype.NewContext()
 	ctx.SetDPI(300)
-	ctx.SetFontSize(42)
 	ctx.SetClip(img.Bounds())
+	ctx.SetDst(img)
+
+	addLine(*ctx, "ElianCodes", image.NewUniform(usedColor))
+}
+
+func addLine(ctx freetype.Context, line string, baseColor image.Image) {
+	ctx.SetFontSize(42)
 	fontBytes, err := ioutil.ReadFile("./fonts/Rubik/static/Rubik-Regular.ttf")
 	if err != nil {
 		fmt.Println("ohoh, I encountered an error while fetching the font: " + err.Error())
 	}
 	font, err := freetype.ParseFont(fontBytes)
 	ctx.SetFont(font)
-	ctx.SetDst(img)
-	ctx.SetSrc(image.NewUniform(usedColor))
-	ctx.DrawString("Elian Codes", freetype.Pt(0, 0+int(ctx.PointToFixed(42)>>6)))
-
-	writeImage(socialImg)
+	ctx.SetSrc(baseColor)
+	pos := freetype.Pt(0, 0+int(ctx.PointToFixed(42)>>6))
+	ctx.DrawString("Elian Codes", pos)
 }
 
 func writeImage(img socialImage) {
