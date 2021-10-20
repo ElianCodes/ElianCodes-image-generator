@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/golang/freetype"
+	"github.com/golang/freetype/truetype"
 	"github.com/nfnt/resize"
 )
 
@@ -25,16 +26,28 @@ type randomColor struct {
 	color color.RGBA
 }
 
+type Line struct {
+	content string
+	color   color.Color
+	size    float64
+	font    string
+}
+
 type socialImage struct {
-	size      size
-	name      string
-	baseColor color.Color
-	src       image.Image
+	size        size
+	name        string
+	baseColor   color.Color
+	src         image.Image
+	link        Line
+	title       Line
+	subtitle    Line
+	generalText Line
 }
 
 func main() {
 	var defaultSocialImageSize size = size{width: 2024, height: 1012}
-	generateImage("test", defaultSocialImageSize)
+	var randomColor color.Color = getRandomColor().color
+	generateImage(socialImage{name: "defaultBanner", size: defaultSocialImageSize, baseColor: randomColor, title: Line{content: "👋 Hello", color: randomColor, size: 32, font: "Medium"}})
 }
 
 func getRandomColor() randomColor {
@@ -51,20 +64,17 @@ func getRandomColor() randomColor {
 	return pickedColor
 }
 
-func generateImage(imageName string, size size) {
-	fmt.Println("starting generation of " + imageName)
+func generateImage(generation socialImage) {
+	fmt.Println("starting generation of " + generation.name)
 
 	// initialize a new (empty) image
-	img := image.NewRGBA(image.Rect(0, 0, size.width, size.height))
-
-	usedColor := getRandomColor().color
-	uniformColor := image.NewUniform(usedColor)
-
-	var socialImg socialImage = socialImage{size: size, name: imageName, baseColor: usedColor, src: img}
+	img := image.NewRGBA(image.Rect(0, 0, generation.size.width, generation.size.height))
+	generation.src = img
+	uniformColor := image.NewUniform(generation.baseColor)
 
 	// Draw the background
-	draw.Draw(img, image.Rect(size.width/2, 0, size.width, size.height), uniformColor, image.Point{}, draw.Src)
-	draw.Draw(img, image.Rect(0, 0, size.width/2, size.height), &image.Uniform{color.White}, image.Point{}, draw.Src)
+	draw.Draw(img, image.Rect(generation.size.width/2, 0, generation.size.width, generation.size.height), uniformColor, image.Point{}, draw.Src)
+	draw.Draw(img, image.Rect(0, 0, generation.size.width/2, generation.size.height), &image.Uniform{color.White}, image.Point{}, draw.Src)
 
 	// Set the ElianCodes image in place
 	readHeroImg, err := os.Open("./assets/hero.png")
@@ -75,40 +85,50 @@ func generateImage(imageName string, size size) {
 	heroImg, err := png.Decode(readHeroImg)
 	heroImg = resize.Resize(600, 0, heroImg, resize.Lanczos3)
 
-	rightMiddlePart := image.Pt((size.width/2*-1)-200, -200)
+	rightMiddlePart := image.Pt((generation.size.width/2*-1)-200, -200)
 	draw.Draw(img, img.Bounds(), heroImg, rightMiddlePart, draw.Over)
 
 	// Set the text
-	addText(img, uniformColor)
+	addText(generation, img)
 
-	writeImage(socialImg)
+	writeImage(generation)
 }
 
-func addText(img draw.Image, usedColor *image.Uniform) {
+func addText(generation socialImage, sourceImg draw.Image) {
+	fmt.Println("starting generation of Text")
 	ctx := freetype.NewContext()
 	ctx.SetDPI(300)
-	ctx.SetClip(img.Bounds())
-	ctx.SetDst(img)
+	ctx.SetClip(generation.src.Bounds())
+	ctx.SetDst(sourceImg)
 
-	addLine(*ctx, "ElianCodes", image.NewUniform(usedColor))
+	addLine(*ctx, generation.title)
 }
 
-func addLine(ctx freetype.Context, line string, baseColor image.Image) {
-	ctx.SetFontSize(42)
-	fontBytes, err := ioutil.ReadFile("./fonts/Rubik/static/Rubik-Regular.ttf")
+func addLine(ctx freetype.Context, line Line) {
+	var baseColor image.Image = image.NewUniform(line.color)
+	ctx.SetFontSize(float64(line.size))
+	font := getFont(line.font)
+	ctx.SetFont(font)
+	ctx.SetSrc(baseColor)
+	pos := freetype.Pt(0, 0+int(ctx.PointToFixed(line.size)>>6))
+	ctx.DrawString(line.content, pos)
+}
+
+func getFont(wantedFont string) *truetype.Font {
+	fontBytes, err := ioutil.ReadFile("./fonts/Rubik/static/Rubik-" + wantedFont + ".ttf")
 	if err != nil {
 		fmt.Println("ohoh, I encountered an error while fetching the font: " + err.Error())
 	}
-	font, err := freetype.ParseFont(fontBytes)
-	ctx.SetFont(font)
-	ctx.SetSrc(baseColor)
-	pos := freetype.Pt(0, 0+int(ctx.PointToFixed(42)>>6))
-	ctx.DrawString("Elian Codes", pos)
+	font, fonterr := freetype.ParseFont(fontBytes)
+	if fonterr != nil {
+		fmt.Println("ohoh, I encountered an error while parsing the font: " + fonterr.Error())
+	}
+	return font
 }
 
 func writeImage(img socialImage) {
 	// Encode as PNG.
 	f, _ := os.Create(img.name + ".png")
 	png.Encode(f, img.src)
-	fmt.Println("The " + img.name + " image is ready!")
+	fmt.Println("The " + img.name + " image is ready and outputted as " + img.name + ".png !")
 }
