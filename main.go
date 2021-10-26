@@ -80,9 +80,7 @@ func main() {
 
 		if err := c.BindJSON(&newImage); err != nil {
 			sentry.CaptureException(err)
-			c.JSON(400, gin.H{
-				"error": "Something went wrong while building the image",
-			})
+			c.String(http.StatusBadRequest, "Something went wrong while building the image")
 			return
 		}
 
