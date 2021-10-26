@@ -7,10 +7,14 @@ import (
 	"image/draw"
 	"image/png"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"os"
 	"time"
 
+	"github.com/getsentry/sentry-go"
+	sentrygin "github.com/getsentry/sentry-go/gin"
+	"github.com/gin-gonic/gin"
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
 	"github.com/nfnt/resize"
@@ -45,9 +49,37 @@ type socialImage struct {
 }
 
 func main() {
-	var defaultSocialImageSize size = size{width: 2024, height: 1012}
-	var randomColor color.Color = getRandomColor().color
-	generateImage(socialImage{name: "defaultBanner", size: defaultSocialImageSize, baseColor: randomColor, title: Line{content: "👋 Hello", color: randomColor, size: 32, font: "Medium"}})
+	// var defaultSocialImageSize size = size{width: 2024, height: 1012}
+	// var randomColor color.Color = getRandomColor().color
+	// generateImage(socialImage{name: "defaultBanner", size: defaultSocialImageSize, baseColor: randomColor, title: Line{content: "👋 Hello Alex", color: randomColor, size: 32, font: "Medium"}})
+
+	err := sentry.Init(sentry.ClientOptions{
+		Dsn: "https://59a9d679a16448a0888bb626e7dcc957@o1030206.ingest.sentry.io/6035002",
+	})
+	if err != nil {
+		log.Fatalf("sentry.Init: %s", err)
+	}
+
+	// create the app
+	app := gin.Default()
+
+	// Initialise middleware
+	app.Use(sentrygin.New(sentrygin.Options{}))
+
+	// Set up routes
+	app.GET("/", func(ctx *gin.Context) {
+		ctx.JSON(200, gin.H{
+			"hello": "world",
+		})
+	})
+
+	// Set up routes
+	app.GET("/health", func(ctx *gin.Context) {
+		ctx.String(200, "Health seems fine")
+	})
+
+	// Run application
+	app.Run(":3000")
 }
 
 func getRandomColor() randomColor {

@@ -3,7 +3,28 @@ module img-gen.elian.codes
 go 1.17
 
 require (
-	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
-	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
+	github.com/getsentry/sentry-go v0.11.0
+	github.com/gin-gonic/gin v1.4.0
+	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
+	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
+)
+
+require (
+	github.com/gin-contrib/sse v0.0.0-20190301062529-5545eab6dad3 // indirect
+	github.com/golang/protobuf v1.3.1 // indirect
+	github.com/howeyc/fsnotify v0.9.0 // indirect
+	github.com/json-iterator/go v1.1.9 // indirect
+	github.com/mattn/go-isatty v0.0.9 // indirect
+	github.com/mitchellh/go-ps v1.0.0 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/modern-go/reflect2 v1.0.1 // indirect
+	github.com/silenceper/gowatch v1.5.1 // indirect
+	github.com/silenceper/log v0.0.0-20171204144354-e5ac7fa8a76a // indirect
+	github.com/ugorji/go/codec v1.1.7 // indirect
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d // indirect
+	golang.org/x/net v0.0.0-20210510120150-4163338589ed // indirect
+	golang.org/x/sys v0.0.0-20211025201205-69cdffdb9359 // indirect
+	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
+	gopkg.in/yaml.v1 v1.0.0-20140924161607-9f9df34309c0 // indirect
+	gopkg.in/yaml.v2 v2.2.4 // indirect
 )
