@@ -2,20 +2,16 @@ package main
 
 import (
 	"fmt"
+	"github.com/elianvancutsem/eliancodes-image-generator/api"
 	"image"
 	"image/color"
 	"image/draw"
 	"image/png"
 	"io/ioutil"
-	"log"
 	"math/rand"
-	"net/http"
 	"os"
 	"time"
 
-	"github.com/getsentry/sentry-go"
-	sentrygin "github.com/getsentry/sentry-go/gin"
-	"github.com/gin-gonic/gin"
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
 	"github.com/nfnt/resize"
@@ -50,7 +46,8 @@ type socialImage struct {
 }
 
 func main() {
-	err := sentry.Init(sentry.ClientOptions{
+	api.StartApi()
+	/*err := sentry.Init(sentry.ClientOptions{
 		Dsn: "https://59a9d679a16448a0888bb626e7dcc957@o1030206.ingest.sentry.io/6035002",
 	})
 	if err != nil {
@@ -91,7 +88,7 @@ func main() {
 	})
 
 	// Run application
-	app.Run(":3000")
+	app.Run(":3000")*/
 }
 
 type generateImageFromAPI struct {

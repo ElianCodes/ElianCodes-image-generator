@@ -1,4 +1,4 @@
-module imgage-generator.elian.codes
+module github.com/elianvancutsem/eliancodes-image-generator
 
 go 1.16
 
