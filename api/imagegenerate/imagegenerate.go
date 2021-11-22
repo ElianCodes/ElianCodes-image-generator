@@ -88,7 +88,8 @@ func GenerateImage(generation SocialImage) {
 	// Set the text
 	addText(generation, img)
 
-	writeImage(generation)
+	//writeImage(generation)
+	fmt.Println("finished generation of " + generation.Name)
 }
 
 func addText(generation SocialImage, sourceImg draw.Image) {
