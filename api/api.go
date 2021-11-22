@@ -2,10 +2,13 @@ package api
 
 import (
 	"fmt"
+	imagegenerator "github.com/elianvancutsem/eliancodes-image-generator/api/imagegenerate"
 	"github.com/getsentry/sentry-go"
 	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-gonic/gin"
+	"image/color"
 	"log"
+	"net/http"
 )
 
 func StartApi() {
@@ -36,8 +39,8 @@ func StartApi() {
 		c.String(200, "Health seems fine")
 	})
 
-	/*app.POST("/generate", func(c *gin.Context) {
-		var newImage generateImageFromAPI
+	app.POST("/generate", func(c *gin.Context) {
+		var newImage imagegenerator.GenerateImageFromAPI
 
 		if err := c.BindJSON(&newImage); err != nil {
 			sentry.CaptureException(err)
@@ -45,11 +48,11 @@ func StartApi() {
 			return
 		}
 
-		var defaultSocialImageSize size = size{width: 2024, height: 1012}
-		var randomColor color.Color = getRandomColor().color
-		generateImage(socialImage{name: "defaultBanner", size: defaultSocialImageSize, baseColor: randomColor, title: Line{content: newImage.Title, color: randomColor, size: 32, font: "Medium"}})
+		var defaultSocialImageSize imagegenerator.Size = imagegenerator.Size{Width: 2024, Height: 1012}
+		var randomColor color.Color = imagegenerator.GetRandomColor().Color
+		imagegenerator.GenerateImage(imagegenerator.SocialImage{Name: "defaultBanner", Size: defaultSocialImageSize, BaseColor: randomColor, Title: imagegenerator.Line{Content: newImage.Title, Color: randomColor, Size: 32, Font: "Medium"}})
 		c.IndentedJSON(http.StatusCreated, newImage)
-	})*/
+	})
 
 	// Run application
 	fmt.Println("Starting API")
