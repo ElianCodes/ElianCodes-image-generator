@@ -6,6 +6,8 @@ COPY . .
 RUN ["go", "mod", "tidy"]
 RUN ["go", "mod", "vendor"]
 
+RUN ["go", "build", "main.go"]
+
 EXPOSE 3000
 
-CMD ["go", "run", "main.go"]
+CMD ["./main"]
