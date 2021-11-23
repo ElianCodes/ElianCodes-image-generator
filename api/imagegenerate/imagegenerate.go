@@ -61,7 +61,7 @@ func GetRandomColor() RandomColor {
 	return pickedColor
 }
 
-func GenerateImage(generation SocialImage) {
+func GenerateImage(generation SocialImage) SocialImage {
 	fmt.Println("starting generation of " + generation.Name)
 
 	// initialize a new (empty) image
@@ -90,6 +90,7 @@ func GenerateImage(generation SocialImage) {
 
 	//writeImage(generation)
 	fmt.Println("finished generation of " + generation.Name)
+	return generation
 }
 
 func addText(generation SocialImage, sourceImg draw.Image) {

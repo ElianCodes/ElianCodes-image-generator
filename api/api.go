@@ -7,8 +7,10 @@ import (
 	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-gonic/gin"
 	"image/color"
+	"image/png"
 	"log"
 	"net/http"
+	"os"
 )
 
 func StartApi() {
@@ -50,8 +52,12 @@ func StartApi() {
 
 		var defaultSocialImageSize imagegenerator.Size = imagegenerator.Size{Width: 2024, Height: 1012}
 		var randomColor color.Color = imagegenerator.GetRandomColor().Color
-		imagegenerator.GenerateImage(imagegenerator.SocialImage{Name: "defaultBanner", Size: defaultSocialImageSize, BaseColor: randomColor, Title: imagegenerator.Line{Content: newImage.Title, Color: randomColor, Size: 32, Font: "Medium"}})
-		c.IndentedJSON(http.StatusCreated, newImage)
+		var finalImage imagegenerator.SocialImage = imagegenerator.GenerateImage(imagegenerator.SocialImage{Name: "defaultBanner", Size: defaultSocialImageSize, BaseColor: randomColor, Title: imagegenerator.Line{Content: newImage.Title, Color: randomColor, Size: 32, Font: "Medium"}})
+		c.Writer.Header().Set("Content-Type", "image/png")
+		f, _ := os.Create(finalImage.Name + ".png")
+		png.Encode(f, finalImage.Src)
+		http.ServeFile(c.Writer, c.Request, finalImage.Name+".png")
+		os.Remove(finalImage.Name + ".png")
 	})
 
 	// Run application
