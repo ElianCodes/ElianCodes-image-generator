@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -45,8 +46,10 @@ type SocialImage struct {
 }
 
 type GenerateImageFromAPI struct {
-	Title     string `json:"title"`
-	PageTitle string `json:"pageTitle"`
+	Title       string `json:"title"`
+	PageTitle   string `json:"pageTitle"`
+	GeneralText string `json:"generalText"`
+	Link        string `json:"link"`
 }
 
 func GetRandomColor() RandomColor {
@@ -64,7 +67,7 @@ func GetRandomColor() RandomColor {
 }
 
 func GenerateImage(generation SocialImage) SocialImage {
-	fmt.Println("starting generation of " + generation.Name)
+	fmt.Print("starting generation of " + generation.Name)
 
 	// initialize a new (empty) image
 	img := image.NewRGBA(image.Rect(0, 0, generation.Size.Width, generation.Size.Height))
@@ -99,11 +102,13 @@ func addText(generation SocialImage, sourceImg draw.Image) {
 	fmt.Println("starting generation of Text")
 	ctx := freetype.NewContext()
 	ctx.SetDPI(300)
-	ctx.SetClip(generation.Src.Bounds())
+	ctx.SetClip(image.Rect(0, 0, generation.Src.Bounds().Size().X/2, generation.Src.Bounds().Size().Y))
 	ctx.SetDst(sourceImg)
 
 	addLine(*ctx, generation.Title)
 	addLine(*ctx, generation.PageTitle)
+	addLine(*ctx, generation.GeneralText)
+	addLine(*ctx, generation.Link)
 }
 
 func addLine(ctx freetype.Context, line Line) {
@@ -112,8 +117,31 @@ func addLine(ctx freetype.Context, line Line) {
 	font := getFont(line.Font)
 	ctx.SetFont(font)
 	ctx.SetSrc(baseColor)
-	pos := freetype.Pt(line.Position.X, line.Position.Y+int(ctx.PointToFixed(line.Size)>>6))
-	ctx.DrawString(line.Content, pos)
+	wrapped := wordWrap(line.Content, 30)
+	for index, text := range wrapped {
+		pos := freetype.Pt(line.Position.X, (line.Position.Y + int(ctx.PointToFixed(line.Size)>>6)*index))
+		ctx.DrawString(text, pos)
+	}
+}
+
+// https://gist.github.com/kennwhite/306317d81ab4a885a965e25aa835b8ef
+func wordWrap(text string, lineWidth int) []string {
+	words := strings.Fields(text)
+	output := make([]string, len(words))
+
+	if len(words) == 0 {
+		return []string{}
+	}
+
+	/*for i := 0; i < len(words); i++ {
+		output[i] = ""
+		for j := 0; j < lineWidth; j++ {
+			output[i] += words[j]
+		}
+	}*/
+
+	fmt.Printf("%q", output)
+	return words
 }
 
 func getFont(wantedFont string) *truetype.Font {
@@ -128,9 +156,13 @@ func getFont(wantedFont string) *truetype.Font {
 	return font
 }
 
+// Encode as PNG.
 func writeImage(img SocialImage) {
-	// Encode as PNG.
 	f, _ := os.Create(img.Name + ".png")
-	png.Encode(f, img.Src)
-	fmt.Println("The " + img.Name + " image is ready and outputted as " + img.Name + ".png !")
+	err := png.Encode(f, img.Src)
+	if err != nil {
+		fmt.Println("ohoh, I encountered an error while writing the final image: " + err.Error())
+	} else {
+		fmt.Println("The " + img.Name + " image is ready and outputted as " + img.Name + ".png !")
+	}
 }

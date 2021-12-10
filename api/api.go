@@ -55,11 +55,13 @@ func StartApi() {
 		var randomColor color.Color = imagegenerator.GetRandomColor().Color
 		var finalImage imagegenerator.SocialImage = imagegenerator.GenerateImage(
 			imagegenerator.SocialImage{
-				Name:      "defaultBanner",
-				Size:      defaultSocialImageSize,
-				BaseColor: randomColor,
-				Title:     imagegenerator.Line{Content: newImage.Title, Color: randomColor, Size: 32, Font: "Medium", Position: image.Point{X: 0, Y: 0}},
-				PageTitle: imagegenerator.Line{Content: newImage.PageTitle, Color: randomColor, Size: 14, Font: "Regular", Position: image.Point{X: 0, Y: 200}},
+				Name:        "defaultBanner",
+				Size:        defaultSocialImageSize,
+				BaseColor:   randomColor,
+				Title:       imagegenerator.Line{Content: newImage.Title, Color: randomColor, Size: 32, Font: "Medium", Position: image.Point{X: 0, Y: 0}},
+				PageTitle:   imagegenerator.Line{Content: newImage.PageTitle, Color: randomColor, Size: 14, Font: "Regular", Position: image.Point{X: 0, Y: 200}},
+				Link:        imagegenerator.Line{Content: newImage.Link, Color: randomColor, Size: 14, Font: "Medium", Position: image.Point{X: 0, Y: defaultSocialImageSize.Height - 100}},
+				GeneralText: imagegenerator.Line{Content: newImage.GeneralText, Color: randomColor, Size: 14, Font: "Regular", Position: image.Point{X: 0, Y: defaultSocialImageSize.Height / 2}},
 			})
 		c.Writer.Header().Set("Content-Type", "image/png")
 		f, _ := os.Create(finalImage.Name + ".png")
