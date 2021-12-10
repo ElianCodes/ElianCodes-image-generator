@@ -10,14 +10,13 @@ The goal of this repo is to become a cloud function that will return a static im
 
 ### Prerequisites
 
-- install Go 1.16
-- install Go dependencies
+- install Go 1.17
+- install Go dependencies with `go install`
 
 ### Local
 
-```bash
-gowatch
-```
+- Install gowatch: `go get github.com/silenceper/gowatch`
+- run gowatch: `gowatch`
 
 running this command in your terminal should be enough to make it run locally
 
@@ -27,4 +26,4 @@ running this command in your terminal should be enough to make it run locally
 go run main.go
 ```
 
-this will output a .exe
+this will output a .exe (depending on your system)
