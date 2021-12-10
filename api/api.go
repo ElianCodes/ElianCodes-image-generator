@@ -6,6 +6,7 @@ import (
 	"github.com/getsentry/sentry-go"
 	sentrygin "github.com/getsentry/sentry-go/gin"
 	"github.com/gin-gonic/gin"
+	"image"
 	"image/color"
 	"image/png"
 	"log"
@@ -52,7 +53,14 @@ func StartApi() {
 
 		var defaultSocialImageSize imagegenerator.Size = imagegenerator.Size{Width: 2024, Height: 1012}
 		var randomColor color.Color = imagegenerator.GetRandomColor().Color
-		var finalImage imagegenerator.SocialImage = imagegenerator.GenerateImage(imagegenerator.SocialImage{Name: "defaultBanner", Size: defaultSocialImageSize, BaseColor: randomColor, Title: imagegenerator.Line{Content: newImage.Title, Color: randomColor, Size: 32, Font: "Medium"}})
+		var finalImage imagegenerator.SocialImage = imagegenerator.GenerateImage(
+			imagegenerator.SocialImage{
+				Name:      "defaultBanner",
+				Size:      defaultSocialImageSize,
+				BaseColor: randomColor,
+				Title:     imagegenerator.Line{Content: newImage.Title, Color: randomColor, Size: 32, Font: "Medium", Position: image.Point{X: 0, Y: 0}},
+				PageTitle: imagegenerator.Line{Content: newImage.PageTitle, Color: randomColor, Size: 14, Font: "Regular", Position: image.Point{X: 0, Y: 200}},
+			})
 		c.Writer.Header().Set("Content-Type", "image/png")
 		f, _ := os.Create(finalImage.Name + ".png")
 		png.Encode(f, finalImage.Src)

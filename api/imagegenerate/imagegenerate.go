@@ -26,10 +26,11 @@ type RandomColor struct {
 }
 
 type Line struct {
-	Content string
-	Color   color.Color
-	Size    float64
-	Font    string
+	Content  string
+	Color    color.Color
+	Size     float64
+	Font     string
+	Position image.Point
 }
 
 type SocialImage struct {
@@ -39,12 +40,13 @@ type SocialImage struct {
 	Src         image.Image
 	Link        Line
 	Title       Line
-	Subtitle    Line
+	PageTitle   Line
 	GeneralText Line
 }
 
 type GenerateImageFromAPI struct {
-	Title string `json:"title"`
+	Title     string `json:"title"`
+	PageTitle string `json:"pageTitle"`
 }
 
 func GetRandomColor() RandomColor {
@@ -101,6 +103,7 @@ func addText(generation SocialImage, sourceImg draw.Image) {
 	ctx.SetDst(sourceImg)
 
 	addLine(*ctx, generation.Title)
+	addLine(*ctx, generation.PageTitle)
 }
 
 func addLine(ctx freetype.Context, line Line) {
@@ -109,7 +112,7 @@ func addLine(ctx freetype.Context, line Line) {
 	font := getFont(line.Font)
 	ctx.SetFont(font)
 	ctx.SetSrc(baseColor)
-	pos := freetype.Pt(0, 0+int(ctx.PointToFixed(line.Size)>>6))
+	pos := freetype.Pt(line.Position.X, line.Position.Y+int(ctx.PointToFixed(line.Size)>>6))
 	ctx.DrawString(line.Content, pos)
 }
 
