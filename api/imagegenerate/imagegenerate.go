@@ -117,31 +117,34 @@ func addLine(ctx freetype.Context, line Line) {
 	font := getFont(line.Font)
 	ctx.SetFont(font)
 	ctx.SetSrc(baseColor)
-	wrapped := wordWrap(line.Content, 30)
-	for index, text := range wrapped {
-		pos := freetype.Pt(line.Position.X, (line.Position.Y + int(ctx.PointToFixed(line.Size)>>6)*index))
+	for index, text := range wordWrap(line.Content, 7) {
+		pos := freetype.Pt(line.Position.X, line.Position.Y+int(ctx.PointToFixed(line.Size)>>6)*(index+1))
 		ctx.DrawString(text, pos)
 	}
 }
 
-// https://gist.github.com/kennwhite/306317d81ab4a885a965e25aa835b8ef
 func wordWrap(text string, lineWidth int) []string {
 	words := strings.Fields(text)
-	output := make([]string, len(words))
+	var maxLength int = (len(words) / lineWidth) + (len(words) % lineWidth)
+	output := make([]string, maxLength)
 
 	if len(words) == 0 {
 		return []string{}
 	}
 
-	/*for i := 0; i < len(words); i++ {
+	for i := 0; i < len(output); i++ {
 		output[i] = ""
-		for j := 0; j < lineWidth; j++ {
-			output[i] += words[j]
+		for j := 1; j < lineWidth+1; j++ {
+			var index int = (i * lineWidth) + j - 1
+			if index >= len(words) {
+				output[i] += ""
+			} else {
+				output[i] += words[index] + " "
+			}
 		}
-	}*/
-
+	}
 	fmt.Printf("%q", output)
-	return words
+	return output
 }
 
 func getFont(wantedFont string) *truetype.Font {
